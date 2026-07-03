@@ -271,7 +271,8 @@
       border-top: 1px solid rgba(255, 255, 255, 0.06);
       padding: 8px;
       gap: 8px;
-      z-index: 10;
+      z-index: 9999;
+      overflow: visible !important;
     }
 
     .control-column {
@@ -285,7 +286,7 @@
       padding: 8px;
       transition: all 0.2s ease;
       position: relative;
-      overflow: hidden;
+      overflow: visible !important;
     }
 
     .control-header {
@@ -304,6 +305,7 @@
       display: flex;
       gap: 8px;
       width: 100%;
+      overflow: visible !important;
     }
 
     .joystick-wrapper {
@@ -315,6 +317,7 @@
       height: 100%;
       position: relative;
       touch-action: none;
+      overflow: visible !important;
     }
 
     .joystick-base {
@@ -330,6 +333,7 @@
       box-shadow: inset 0 0 15px rgba(var(--p-rgb), 0.15);
       cursor: pointer;
       touch-action: none;
+      z-index: 99999 !important;
     }
 
     .joystick-knob {
