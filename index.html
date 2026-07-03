@@ -1486,24 +1486,30 @@
         // Bind multi-touch pointer capture events
         let isDragging = false;
         const maxRadius = 30; // maximum displacement of the knob
+        let startX = 0;
+        let startY = 0;
 
         const updateJoystick = (e) => {
           if (!isDragging) return;
-          const rect = joystickBase.getBoundingClientRect();
           const clientX = e.clientX;
           const clientY = e.clientY;
 
-          let dx = clientX - (rect.left + rect.width / 2);
-          let dy = clientY - (rect.top + rect.height / 2);
+          let dx = clientX - startX;
+          let dy = clientY - startY;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist > 0) {
             const angle = Math.atan2(dy, dx);
             setPlayerAngle(i, angle);
 
-            const limitDist = Math.min(dist, maxRadius);
-            const knobX = Math.cos(angle) * limitDist;
-            const knobY = Math.sin(angle) * limitDist;
+            let knobX = dx;
+            let knobY = dy;
+            if (dist > maxRadius) {
+              knobX = Math.cos(angle) * maxRadius;
+              knobY = Math.sin(angle) * maxRadius;
+              startX = clientX - knobX;
+              startY = clientY - knobY;
+            }
             joystickKnob.style.transform = `translate(${knobX}px, ${knobY}px)`;
           } else {
             joystickKnob.style.transform = 'translate(0, 0)';
@@ -1514,6 +1520,8 @@
           e.preventDefault();
           isDragging = true;
           joystickBase.setPointerCapture(e.pointerId);
+          startX = e.clientX;
+          startY = e.clientY;
           updateJoystick(e);
         });
 
