@@ -1486,6 +1486,10 @@
         // Bind multi-touch pointer capture events
         let isDragging = false;
         const maxRadius = 30; // maximum displacement of the knob
+        let defaultCenterX = 0;
+        let defaultCenterY = 0;
+        let containerX = 0;
+        let containerY = 0;
         let startX = 0;
         let startY = 0;
 
@@ -1505,10 +1509,19 @@
             let knobX = dx;
             let knobY = dy;
             if (dist > maxRadius) {
+              const excess = dist - maxRadius;
+              const pullX = Math.cos(angle) * excess;
+              const pullY = Math.sin(angle) * excess;
+
+              containerX += pullX;
+              containerY += pullY;
+              joystickBase.style.transform = `translate(${containerX}px, ${containerY}px)`;
+
+              startX += pullX;
+              startY += pullY;
+
               knobX = Math.cos(angle) * maxRadius;
               knobY = Math.sin(angle) * maxRadius;
-              startX = clientX - knobX;
-              startY = clientY - knobY;
             }
             joystickKnob.style.transform = `translate(${knobX}px, ${knobY}px)`;
           } else {
@@ -1520,8 +1533,22 @@
           e.preventDefault();
           isDragging = true;
           joystickBase.setPointerCapture(e.pointerId);
+
+          const prevTransform = joystickBase.style.transform;
+          joystickBase.style.transform = 'none';
+          const rect = joystickBase.getBoundingClientRect();
+          defaultCenterX = rect.left + rect.width / 2;
+          defaultCenterY = rect.top + rect.height / 2;
+          joystickBase.style.transform = prevTransform;
+
+          containerX = e.clientX - defaultCenterX;
+          containerY = e.clientY - defaultCenterY;
+          joystickBase.style.transform = `translate(${containerX}px, ${containerY}px)`;
+
           startX = e.clientX;
           startY = e.clientY;
+
+          joystickKnob.style.transform = 'translate(0, 0)';
           updateJoystick(e);
         });
 
@@ -1536,7 +1563,8 @@
           if (isDragging) {
             isDragging = false;
             joystickBase.releasePointerCapture(e.pointerId);
-            joystickKnob.style.transform = 'translate(0, 0)';
+            joystickBase.style.transform = 'translate(0px, 0px)';
+            joystickKnob.style.transform = 'translate(0px, 0px)';
           }
         };
 
