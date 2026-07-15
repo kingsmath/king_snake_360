@@ -965,6 +965,7 @@
     let fruits = [];
     let particles = []; 
     let initialFruitCount = 20;
+    let playerSpawnIndices = [];
 
     /* =========================================================================
        DOM ELEMENTS & MENU CONTROLS
@@ -1251,6 +1252,10 @@
       snakes = [];
       fruits = [];
       particles = [];
+      playerSpawnIndices = [];
+      for (let i = 0; i <= 6; i++) {
+        playerSpawnIndices[i] = (i - 1 + 10) % 10;
+      }
 
       baseSpeed = SPEED_PRESETS[gameSpeedLevel];
 
@@ -1302,7 +1307,22 @@
     function spawnSnake(playerId, firstSpawn = false) {
       const config = PLAYER_DEFAULTS[playerId - 1];
       
-      const spawnX = boardOffsetX + getColumnGridCenter(playerId) * cellSize + cellSize / 2;
+      // Determine spawn path index sequentially (0 to 9)
+      if (!firstSpawn) {
+        playerSpawnIndices[playerId] = (playerSpawnIndices[playerId] + 1) % 10;
+      }
+      
+      const offset = playerSpawnIndices[playerId];
+      const baseSpawnCol = getColumnGridCenter(playerId);
+      
+      let spawnCol = baseSpawnCol + offset;
+      // Wrap around within the grid if it goes off the right edge
+      while (spawnCol >= GRID_COLS - 1) {
+        spawnCol -= 10;
+      }
+      if (spawnCol < 1) spawnCol = 1;
+
+      const spawnX = boardOffsetX + spawnCol * cellSize + cellSize / 2;
       const spawnY = boardOffsetY + boardHeight - 80; 
       const startDir = -Math.PI / 2; // Always face UP
 
